@@ -4,8 +4,8 @@
         Title="IPICO Server" Height="350" Width="525">
     <Grid>
         <Button Name="startButton" Content="Connect" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="161,78,0,0" Click="startButton_Click_1"/>
-        <TextBox Name="ipAddress" HorizontalAlignment="Left" Height="23" Margin="98,45,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-        <TextBox Name="port" HorizontalAlignment="Left" Height="23" Margin="98,79,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="55"/>        
+        <TextBox Name="ipAddressTxt" HorizontalAlignment="Left" Height="23" Margin="98,45,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+        <TextBox Name="portTxt" HorizontalAlignment="Left" Height="23" Margin="98,79,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="55"/>        
         <Label Content="IP Address:" HorizontalAlignment="Left" Margin="16,42,0,0" VerticalAlignment="Top"/>
         <Label Content="Port:" HorizontalAlignment="Left" Margin="49,76,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.343,0.577"/>
         <TextBlock Name="connectionStatus" HorizontalAlignment="Left" Margin="253,81,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="144"/>
