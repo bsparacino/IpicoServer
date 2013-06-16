@@ -25,10 +25,9 @@ namespace IpicoServer
     public partial class MainWindow : Window
     {
         private int numChipReadsRaw = 0;
-        private int numChipReadsUnique = 0;
         private int startButtonState = 0;
 
-        private IPAddress readerIpAddress = null;        
+        private IPAddress readerIpAddress = null;
         private int readerPort = 0;
 
         private IPAddress[] addresses;
@@ -38,6 +37,8 @@ namespace IpicoServer
         private TcpClient tcpClient;
         private int failedConnectionCount;
         private String response = String.Empty;
+        private String responseBackup = String.Empty;
+        private DateTime startTime;
 
         private HashSet<String> chips = new HashSet<String>();
         private List<String> reads = new List<String>();
@@ -80,28 +81,12 @@ namespace IpicoServer
 
                     addresses = new IPAddress[1];
                     addresses[0] = IPAddress.Parse(ipAddressTxt.Text);
-                    
-
 
                     Thread clientThread = new Thread(() => clientStart());
                     clientThread.Start();
 
                     Thread parserThread = new Thread(() => parseBuffer());
                     parserThread.Start();
-
-
-
-
-                    //clnt = new AsyncTcpClient(readerIpAddress, readerPort);
-                    //clnt.Connect();
-
-                    //new TcpEchoClient("192.168.0.51", 4096, 10000);
-
-                    //tcpListenerThread = new Thread(() => StartListening(readerIpAddress, readerPort));
-                    //tcpListenerThread = new Thread(() => StartClient(readerIpAddress, readerPort));
-                    //tcpListenerThread.Start();
-
-                    
                 }
                 catch (Exception e2)
                 {
@@ -125,14 +110,19 @@ namespace IpicoServer
             // Process save file dialog box results 
             if (result == true)
             {
+                /*
                 String fileText = "";
+
                 foreach (String read in reads)
                 {
                     fileText += read;
                 }
 
                 // Save document 
-                File.WriteAllText(dlg.FileName, fileText);                
+                File.WriteAllText(dlg.FileName, fileText);
+                */
+
+                File.WriteAllText(dlg.FileName, responseBackup);                
             }
         }
 
@@ -186,13 +176,17 @@ namespace IpicoServer
                                     String ms = Convert.ToInt32(data.Substring(32, 2), 16).ToString();
                                     String time = hh + ":" + mm + ":" + ss + "." + ms;
 
+                                    TimeSpan netTimeTmp = Convert.ToDateTime(time) - startTime;
+                                    String netTime = new DateTime(netTimeTmp.Ticks).ToString("HH:mm:ss.ff");
+
                                     Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() =>
                                     {
                                         numChipReadsUniqueTxt.Text = chips.Count().ToString();
                                         txtConsole.Text += chips.Count().ToString() + ".";
-                                        //txtConsole.Text += data;
+                                        //txtConsole.Text += "\n" + data;
                                         txtConsole.Text += "\n chip: " + chip;
-                                        txtConsole.Text += "\n time: " + time + "\n\n";
+                                        txtConsole.Text += "\n tod: " + time;
+                                        txtConsole.Text += "\n time: " + netTime + "\n\n";
                                     }));
 
                                 }
@@ -219,7 +213,7 @@ namespace IpicoServer
         {
             Console.WriteLine("-------------------------------");
             //Console.WriteLine(clnt.getResponse());
-            Console.WriteLine(response);
+            Console.WriteLine(responseBackup);
         }
 
 
@@ -280,7 +274,12 @@ namespace IpicoServer
                     //connection has failed overall.
                     return;
                 }
-            }
+            }            
+
+            Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() =>
+            {
+                connectionStatus.Text = "Connected";
+            }));
 
             //We are connected successfully.
             NetworkStream networkStream = tcpClient.GetStream();
@@ -320,6 +319,7 @@ namespace IpicoServer
             lock (response)
             {
                 response += data;
+                responseBackup += data;
             }
 
             //Do something with the data object here.
@@ -327,18 +327,44 @@ namespace IpicoServer
             networkStream.BeginRead(buffer, 0, buffer.Length, ReadCallback, buffer);
         }
 
-        /// <summary>
-        /// Callback for Get Host Addresses operation
-        /// </summary>
-        /// <param name="result">The AsyncResult object</param>
-        private void GetHostAddressesCallback(IAsyncResult result)
+        private void startTimeTxt_TextChanged_1(object sender, TextChangedEventArgs e)
         {
-            addresses = Dns.EndGetHostAddresses(result);
-            //Signal the addresses are now set
-            ((AutoResetEvent)addressesSet).Set();
+            String t = startTimeTxt.Text;
+            Console.WriteLine(t);
+
+            String h = t.Substring(0, 2);
+            String m = t.Substring(3, 2);
+            String s = t.Substring(6, 2);
+            String f = t.Substring(9, 2);
+
+            int hh = 0;
+            int mm = 0;
+            int.TryParse(h, out hh);
+            int.TryParse(m, out mm);
+
+            if (hh >= 24)
+                h = "00";
+
+            if (mm >= 60)
+                m = "00";
+
+            String newTime = h + ":" + m + ":" + s + "." + f;
+            startTimeTxt.Text = newTime;
+
+            DateTime time = Convert.ToDateTime(newTime);
+            this.startTime = time;
+            //Console.WriteLine(time.ToString("HH:mm:ss.ff"));
+
+
+           // Console.WriteLine(hh+" "+mm+" "+ss+" "+ff);
+
         }
 
 
+        private void timeNowBtn_Click_1(object sender, RoutedEventArgs e)
+        {
+            startTimeTxt.Text = DateTime.Now.ToString("HH:mm:ss.ff");
+        }
 
 
 
