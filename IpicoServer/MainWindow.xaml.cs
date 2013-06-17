@@ -33,7 +33,7 @@ namespace IpicoServer
         private IPAddress[] addresses;
         private IPAddress ipAddress = null;
         private int port;
-        private WaitHandle addressesSet;
+        //private WaitHandle addressesSet;
         private TcpClient tcpClient;
         private int failedConnectionCount;
         private String response = String.Empty;
@@ -47,7 +47,7 @@ namespace IpicoServer
         {
             InitializeComponent();
             ipAddressTxt.Text = "192.168.0.51";
-            ipAddressTxt.Text = "127.0.0.1";
+            //ipAddressTxt.Text = "127.0.0.1";
             portTxt.Text = "10000";
         }
 
@@ -182,11 +182,11 @@ namespace IpicoServer
                                     Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() =>
                                     {
                                         numChipReadsUniqueTxt.Text = chips.Count().ToString();
-                                        txtConsole.Text += chips.Count().ToString() + ".";
-                                        //txtConsole.Text += "\n" + data;
-                                        txtConsole.Text += "\n chip: " + chip;
-                                        txtConsole.Text += "\n tod: " + time;
-                                        txtConsole.Text += "\n time: " + netTime + "\n\n";
+                                        chipConsole.Text += chips.Count().ToString() + ".";
+                                        //chipConsole.Text += "\n" + data;
+                                        chipConsole.Text += "\n chip: " + chip;
+                                        chipConsole.Text += "\n tod: " + time;
+                                        chipConsole.Text += "\n time: " + netTime + "\n\n";
                                     }));
 
                                 }
@@ -201,7 +201,39 @@ namespace IpicoServer
                             if (response.Length >= 32)
                             {
                                 String data = response.Substring(0, 32);
-                                response = response.Remove(0, 32);                                
+                                response = response.Remove(0, 32);
+
+                                String year = data.Substring(8, 2);
+                                String month = data.Substring(10, 2);
+                                String day = data.Substring(12, 2);
+                                String hh = data.Substring(16, 2);
+                                String mm = data.Substring(18, 2);
+                                String ss = data.Substring(20, 2);
+                                String ms = Convert.ToInt32(data.Substring(22, 2), 16).ToString().PadRight(2, '0');
+                                String time = hh + ":" + mm + ":" + ss + "." + ms;
+
+                                Console.WriteLine("my time");
+                                Console.WriteLine(data);
+
+                                DateTime newTime = getDateTime(time);
+                                String newTimeString = newTime.ToString("HH:mm:ss.ff");
+
+                                Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() =>
+                                {
+                                    startTimeConsole.Text += newTimeString + " (Trigger)\n";
+                                }));                                
+
+                                if(startTime.ToString("HH:mm:ss.ff") == "00:00:00.00")
+                                {
+                                    Console.WriteLine("NEW START TIME");
+                                    startTime = newTime;
+
+                                    Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() =>
+                                    {
+                                        startTimeTxt.Text = newTimeString;
+                                    }));
+
+                                }
                             }
                         }
                     }
@@ -245,9 +277,9 @@ namespace IpicoServer
         /// </summary>
         public void Connect()
         {
-            if (addressesSet != null)
+            //if (addressesSet != null)
                 //Wait for the addresses value to be set
-                addressesSet.WaitOne();
+                //addressesSet.WaitOne();
             //Set the failed connection count to 0
             Interlocked.Exchange(ref failedConnectionCount, 0);
             //Start the async connect operation
@@ -330,6 +362,12 @@ namespace IpicoServer
         private void startTimeTxt_TextChanged_1(object sender, TextChangedEventArgs e)
         {
             String t = startTimeTxt.Text;
+            startTime = getDateTime(t);
+            startTimeTxt.Text = startTime.ToString("HH:mm:ss.ff");
+        }
+
+        private DateTime getDateTime(String t)
+        {
             Console.WriteLine(t);
 
             String h = t.Substring(0, 2);
@@ -348,22 +386,23 @@ namespace IpicoServer
             if (mm >= 60)
                 m = "00";
 
-            String newTime = h + ":" + m + ":" + s + "." + f;
-            startTimeTxt.Text = newTime;
+            String newTime = h + ":" + m + ":" + s + "." + f;            
 
             DateTime time = Convert.ToDateTime(newTime);
-            this.startTime = time;
+            return time;
+
+            
             //Console.WriteLine(time.ToString("HH:mm:ss.ff"));
-
-
-           // Console.WriteLine(hh+" "+mm+" "+ss+" "+ff);
+            //Console.WriteLine(hh+" "+mm+" "+ss+" "+ff);
 
         }
 
 
         private void timeNowBtn_Click_1(object sender, RoutedEventArgs e)
         {
-            startTimeTxt.Text = DateTime.Now.ToString("HH:mm:ss.ff");
+            String newTimeString = DateTime.Now.ToString("HH:mm:ss.ff");
+            startTimeTxt.Text = newTimeString;
+            startTimeConsole.Text += newTimeString + " (Manual)\n";
         }
 
 
