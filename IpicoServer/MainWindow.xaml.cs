@@ -46,8 +46,8 @@ namespace IpicoServer
         public MainWindow()
         {
             InitializeComponent();
-            ipAddressTxt.Text = "192.168.0.51";
-            //ipAddressTxt.Text = "127.0.0.1";
+            //ipAddressTxt.Text = "192.168.0.51";
+            ipAddressTxt.Text = "127.0.0.1";
             portTxt.Text = "10000";
         }
 
@@ -177,7 +177,19 @@ namespace IpicoServer
                                     String time = hh + ":" + mm + ":" + ss + "." + ms;
 
                                     TimeSpan netTimeTmp = Convert.ToDateTime(time) - startTime;
-                                    String netTime = new DateTime(netTimeTmp.Ticks).ToString("HH:mm:ss.ff");
+                                    String netTime = null;
+
+                                    if (netTimeTmp.Ticks < 0)
+                                    {
+                                        netTime = new DateTime(TimeSpan.TicksPerDay - startTime.Ticks + Convert.ToDateTime(time).Ticks).ToString("HH:mm:ss.ff");
+                                    }
+                                    else
+                                    {
+                                        netTime = new DateTime(netTimeTmp.Ticks).ToString("HH:mm:ss.ff");
+                                    }
+
+                                    Console.WriteLine(netTimeTmp.Ticks.ToString());
+                                    Console.WriteLine(netTimeTmp);                                                                        
 
                                     Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() =>
                                     {
@@ -386,7 +398,8 @@ namespace IpicoServer
             if (mm >= 60)
                 m = "00";
 
-            String newTime = h + ":" + m + ":" + s + "." + f;            
+            String newTime = h + ":" + m + ":" + s + "." + f;
+            Console.WriteLine(newTime);
 
             DateTime time = Convert.ToDateTime(newTime);
             return time;
