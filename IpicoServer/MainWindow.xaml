@@ -18,13 +18,10 @@
                         
         <TextBlock x:Name="connectionStatus" HorizontalAlignment="Left" Margin="268,81,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="144"/>
 
-        <ScrollViewer HorizontalAlignment="Left" Margin="10,142,0,0" VerticalAlignment="Top" Width="148" Height="212" Background="#FFFFF7E5">
-            <TextBlock x:Name="startTimeConsole" HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Top" />
-        </ScrollViewer>
+        <TextBox x:Name="startTimeConsole" HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Top" Height="212" Width="140" ScrollViewer.VerticalScrollBarVisibility="Visible" Margin="18,142,0,0" />
 
-        <ScrollViewer HorizontalAlignment="Left" Margin="172,142,0,0" VerticalAlignment="Top" Width="330" Height="212" Background="#FFFFF7E5">
-            <TextBlock x:Name="chipConsole" HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Top" />
-        </ScrollViewer>
+        <TextBox x:Name="chipConsole" HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Top" Height="212" Width="320" Margin="172,142,0,0" ScrollViewer.VerticalScrollBarVisibility="Visible" />
+        
 
         <Label Content="Reads:" HorizontalAlignment="Left" Margin="373,16,0,0" VerticalAlignment="Top"/>
         <TextBlock x:Name="numChipReadsRawTxt" HorizontalAlignment="Left" Margin="422,22,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Text="0" />
